@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { User } from "../models/userModel";
+import { User } from "../../user/models/userModel";
 import { CustomError } from "../../../utils/customError";
 
 export const registerUser = async (

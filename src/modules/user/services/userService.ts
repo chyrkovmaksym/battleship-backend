@@ -1,4 +1,4 @@
-import { User } from "../../auth/models/userModel";
+import { User } from "../models/userModel";
 
 export const searchUsers = async (
   searchTerm: string,
