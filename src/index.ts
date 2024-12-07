@@ -5,6 +5,7 @@ import authRoutes from "./modules/auth/routes/authRoutes";
 import userRoutes from "./modules/user/routes/userRoutes";
 import friendRoutes from "./modules/friends/routes/friendRequestRoutes";
 import gameRequestRoutes from "./modules/gameRequest/routes/gameRequestRoutes";
+import cors from "cors";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(cors());
 connectDB();
 
 app.use("/api/auth", authRoutes);
