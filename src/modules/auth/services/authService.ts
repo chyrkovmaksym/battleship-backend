@@ -21,8 +21,7 @@ export const registerUser = async (
     email,
     password: hashedPassword,
   });
-  await user.save();
-  return user;
+  return await user.save();
 };
 
 export const loginUser = async (email: string, password: string) => {
