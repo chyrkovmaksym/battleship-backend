@@ -20,10 +20,28 @@ export const sendFriendRequest = async (
     throw new CustomError("Friend request already sent", 400);
   }
 
+  const fromUser = await User.findById(fromUserId);
+  const toUser = await User.findById(toUserId);
+
+  if (!fromUser || !toUser) {
+    throw new CustomError("User not found", 404);
+  }
+
   const friendRequest = new FriendRequest({
     fromUser: fromUserId,
     toUser: toUserId,
+    sender: {
+      firstName: fromUser.firstName,
+      lastName: fromUser.lastName,
+      email: fromUser.email,
+    },
+    receiver: {
+      firstName: toUser.firstName,
+      lastName: toUser.lastName,
+      email: toUser.email,
+    },
   });
+
   await friendRequest.save();
 
   const notification = new Notification({
@@ -81,4 +99,54 @@ export const respondToFriendRequest = async (
   }
 
   return { status };
+};
+
+export const getFriendRequests = async (
+  userId: string,
+  type: "fromUser" | "toUser"
+) => {
+  let filter: any;
+
+  if (type === "toUser") {
+    filter = { toUser: userId };
+  } else if (type === "fromUser") {
+    filter = { fromUser: userId };
+  }
+
+  const requests = await FriendRequest.find(filter)
+    .select("fromUser toUser status createdAt sender receiver")
+    .sort({
+      status: 1,
+      createdAt: -1,
+    });
+
+  return requests.map((request) => ({
+    ...request.toObject(),
+    sender: request.sender,
+    receiver: request.receiver,
+  }));
+};
+
+export const getUserFriends = async (userId: string) => {
+  const user = await User.findById(userId).populate<{
+    friends: Array<{
+      _id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+    }>;
+  }>("friends", "firstName lastName email");
+
+  if (!user) {
+    throw new CustomError("User not found", 404);
+  }
+
+  const friendsData = user.friends.map((friend) => ({
+    _id: friend._id,
+    firstName: friend.firstName,
+    lastName: friend.lastName,
+    email: friend.email,
+  }));
+
+  return friendsData;
 };

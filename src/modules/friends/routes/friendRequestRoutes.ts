@@ -15,4 +15,12 @@ router.post(
   friendRequestController.respondToFriendRequest
 );
 
+router.get(
+  "/requests",
+  isAuthenticated,
+  friendRequestController.getFriendRequests
+);
+
+router.get("/my", isAuthenticated, friendRequestController.getUserFriends);
+
 export default router;
