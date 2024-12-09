@@ -17,8 +17,8 @@ app.use(cors());
 connectDB();
 
 app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/friend", friendRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/friends", friendRoutes);
 app.use("/api/gameRequest", gameRequestRoutes);
 
 app.listen(PORT, () => {

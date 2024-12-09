@@ -8,11 +8,13 @@ export const searchUsers = async (req: Request, res: Response) => {
 
     const pageNumber = parseInt(page as string);
     const limitNumber = parseInt(limit as string);
+    const userId = req.userId;
 
     const { users, totalUsers } = await userService.searchUsers(
       searchTerm as string,
       pageNumber,
-      limitNumber
+      limitNumber,
+      userId
     );
 
     res.status(200).json({
