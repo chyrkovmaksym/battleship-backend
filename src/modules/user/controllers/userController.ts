@@ -28,3 +28,18 @@ export const searchUsers = async (req: Request, res: Response) => {
     res.send(status).json({ message });
   }
 };
+
+export const getMyUser = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+
+    const user = await userService.getUserById(userId);
+
+    res.status(200).json({
+      user,
+    });
+  } catch (error) {
+    const { message, status } = handleError(error);
+    res.send(status).json({ message });
+  }
+};

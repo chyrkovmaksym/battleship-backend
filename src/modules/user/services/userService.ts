@@ -1,3 +1,4 @@
+import { CustomError } from "../../../utils/customError";
 import { User } from "../models/userModel";
 
 export const searchUsers = async (
@@ -25,4 +26,14 @@ export const searchUsers = async (
   const totalUsers = await User.countDocuments(searchQuery);
 
   return { users, totalUsers };
+};
+
+export const getUserById = async (userId: string) => {
+  const user = await User.findById(userId).select(
+    "_id email firstName lastName"
+  );
+  if (!user) {
+    throw new CustomError("User not found", 400);
+  }
+  return user;
 };

@@ -13,7 +13,7 @@ import { handleGameSockets } from "./modules/game/  controllers/gameSocketContro
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -33,6 +33,6 @@ app.use("/api/gameRequest", gameRequestRoutes);
 
 handleGameSockets(io);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

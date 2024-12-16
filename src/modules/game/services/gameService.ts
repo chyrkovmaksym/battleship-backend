@@ -2,11 +2,9 @@ import mongoose from "mongoose";
 import { Game } from "../models/gameModel";
 
 export const createRoom = async (player: string) => {
-  const emptyBoard = Array(10).fill(Array(10).fill(""));
 
   const game = new Game({
     players: [player],
-    currentBoardState: emptyBoard,
     turn: player,
   });
   return await game.save();
