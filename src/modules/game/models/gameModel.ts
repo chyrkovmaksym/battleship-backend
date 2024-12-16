@@ -3,8 +3,8 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 interface IGame extends Document {
   players: Types.ObjectId[];
   boards: {
-    player1: string[][];
-    player2: string[][];
+    player1: string[][] | null;
+    player2: string[][] | null;
   };
   turn: Types.ObjectId;
   isActive: boolean;
@@ -15,11 +15,11 @@ const gameSchema = new Schema<IGame>({
   boards: {
     player1: {
       type: [[String]],
-      default: Array(10).fill(Array(10).fill("")),
+      default: null,
     },
     player2: {
       type: [[String]],
-      default: Array(10).fill(Array(10).fill("")),
+      default: null,
     },
   },
   turn: { type: Schema.Types.ObjectId, ref: "User", required: true },

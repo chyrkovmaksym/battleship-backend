@@ -1,5 +1,9 @@
 import { Server, Socket } from "socket.io";
-import { createRoom, joinRoom } from "../services/gameService";
+import {
+  createRoom,
+  joinRoom,
+  markSurroundingCellsAsMissed,
+} from "../services/gameService";
 import { Game } from "../models/gameModel";
 
 export const handleGameSockets = (io: Server) => {
@@ -45,7 +49,11 @@ export const handleGameSockets = (io: Server) => {
         if (!game) throw new Error("Game not found");
 
         // Validate board dimensions and content
-        if (!Array.isArray(board) || board.length !== 10 || board.some(row => row.length !== 10)) {
+        if (
+          !Array.isArray(board) ||
+          board.length !== 10 ||
+          board.some((row) => row.length !== 10)
+        ) {
           throw new Error("Invalid board dimensions");
         }
 
@@ -66,7 +74,7 @@ export const handleGameSockets = (io: Server) => {
         // Check if both players have submitted their boards
         if (game.boards.player1 && game.boards.player2) {
           game.isActive = true;
-          game.turn = game.players[0]; 
+          game.turn = game.players[0];
           await game.save();
 
           io.to(gameId).emit("gameStarted", {
@@ -94,13 +102,15 @@ export const handleGameSockets = (io: Server) => {
         if (game.turn.toString() !== playerId) throw new Error("Not your turn");
 
         const isPlayer1 = game.players[0].toString() === playerId;
-
         const opponentBoard = isPlayer1
           ? game.boards.player2
           : game.boards.player1;
 
+        if (!opponentBoard) throw new Error("Empty board");
+
         const cell = opponentBoard[x][y];
 
+        // If the cell was already targeted, return an error
         if (cell === "M" || cell === "H" || cell === "K") {
           throw new Error("Cell already targeted");
         }
@@ -123,6 +133,8 @@ export const handleGameSockets = (io: Server) => {
               for (let j = 0; j < opponentBoard[i].length; j++) {
                 if (opponentBoard[i][j] === shipId) {
                   opponentBoard[i][j] = "K";
+                  // Mark surrounding cells as missed (M)
+                  markSurroundingCellsAsMissed(opponentBoard, i, j);
                 }
               }
             }
