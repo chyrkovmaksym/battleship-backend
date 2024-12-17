@@ -114,7 +114,7 @@ export const handleGameSockets = (io: Server) => {
         const cell = opponentBoard[x][y];
 
         // If the cell was already targeted, return an error
-        if (cell === "M" || cell === "H" || cell === "K") {
+        if (cell === "M" || cell.startsWith("H") || cell === "K") {
           throw new Error("Cell already targeted");
         }
 
