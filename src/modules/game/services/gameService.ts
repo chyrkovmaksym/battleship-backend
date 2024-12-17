@@ -42,9 +42,20 @@ export const markSurroundingCellsAsMissed = (
     const ny = y + dy;
 
     if (nx >= 0 && nx < board.length && ny >= 0 && ny < board[0].length) {
-      if (board[nx][ny] !== "K" && board[nx][ny] !== "M") {
+      if (board[x][y] === "K" && board[nx][ny] !== "K") {
         board[nx][ny] = "M"; // Mark surrounding cell as missed
       }
     }
   }
+};
+
+export const hideShips = (board: string[][]): string[][] => {
+  return board.map((row) =>
+    row.map((cell) => {
+      if (cell.startsWith("S")) {
+        return "";
+      }
+      return cell;
+    })
+  );
 };

@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import {
   createRoom,
+  hideShips,
   joinRoom,
   markSurroundingCellsAsMissed,
 } from "../services/gameService";
@@ -102,11 +103,13 @@ export const handleGameSockets = (io: Server) => {
         if (game.turn.toString() !== playerId) throw new Error("Not your turn");
 
         const isPlayer1 = game.players[0].toString() === playerId;
-        const opponentBoard = isPlayer1
-          ? game.boards.player2
-          : game.boards.player1;
 
-        if (!opponentBoard) throw new Error("Empty board");
+        // Determine which board is the player's and which is the opponent's
+        const opponentBoard = (
+          isPlayer1 ? game.boards.player2 : game.boards.player1
+        )?.map((item) => [...item]);
+
+        if (!opponentBoard) throw new Error("Opponent's board is empty");
 
         const cell = opponentBoard[x][y];
 
@@ -121,21 +124,25 @@ export const handleGameSockets = (io: Server) => {
           opponentBoard[x][y] = "M";
           moveResult = "miss";
         } else if (cell.startsWith("S")) {
+          const newValue = "H_" + cell;
           // Hit
-          const shipId = cell;
-          opponentBoard[x][y] = "H";
+          opponentBoard[x][y] = newValue;
 
           // Check if the ship is completely sunk
-          const isSunk = opponentBoard.every((row) => !row.includes(shipId));
+          const isSunk = opponentBoard.every((row) => !row.includes(cell));
           if (isSunk) {
             // Mark all parts of the ship as "K" (killed)
             for (let i = 0; i < opponentBoard.length; i++) {
               for (let j = 0; j < opponentBoard[i].length; j++) {
-                if (opponentBoard[i][j] === shipId) {
+                if (opponentBoard[i][j] === newValue) {
                   opponentBoard[i][j] = "K";
-                  // Mark surrounding cells as missed (M)
-                  markSurroundingCellsAsMissed(opponentBoard, i, j);
                 }
+              }
+            }
+            for (let i = 0; i < opponentBoard.length; i++) {
+              for (let j = 0; j < opponentBoard[i].length; j++) {
+                // Mark surrounding cells as missed (M)
+                markSurroundingCellsAsMissed(opponentBoard, i, j);
               }
             }
             moveResult = "killed";
@@ -144,14 +151,24 @@ export const handleGameSockets = (io: Server) => {
           }
         }
 
+        if (isPlayer1) {
+          game.boards.player2 = opponentBoard;
+        } else {
+          game.boards.player1 = opponentBoard;
+        }
+
         // Switch turn
-        game.turn = isPlayer1 ? game.players[1] : game.players[0];
+        if (moveResult !== "hit" && moveResult !== "killed") {
+          game.turn = isPlayer1 ? game.players[1] : game.players[0];
+        }
         game.markModified("boards");
         await game.save();
 
-        // Notify players
+        // Notify players about the move and send modified boards
         io.to(gameId).emit("moveMade", {
-          boards: game.boards,
+          boards: {
+            updatedBoard: hideShips(opponentBoard),
+          },
           turn: game.turn,
           result: moveResult,
           x,
