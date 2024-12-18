@@ -164,6 +164,30 @@ export const handleGameSockets = (io: Server) => {
         game.markModified("boards");
         await game.save();
 
+        // Check if the opponent has any remaining ships
+        const opponentStillHasShips = opponentBoard.some((row) =>
+          row.some((cell) => cell.startsWith("S"))
+        );
+
+        if (!opponentStillHasShips) {
+          game.isActive = false;
+          const winnerId = playerId;
+
+          await game.save();
+
+          io.to(gameId).emit("gameOver", {
+            winner: winnerId,
+            boards: {
+              updatedBoard: hideShips(opponentBoard),
+            },
+            turn: game.turn,
+            result: moveResult,
+            x,
+            y,
+          });
+          return;
+        }
+
         // Notify players about the move and send modified boards
         io.to(gameId).emit("moveMade", {
           boards: {
