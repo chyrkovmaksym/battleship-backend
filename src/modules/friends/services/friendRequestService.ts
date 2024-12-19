@@ -49,6 +49,7 @@ export const sendFriendRequest = async (
     type: "friendRequest",
     content: "You have a new friend request",
     fromUser: fromUserId,
+    requestId: friendRequest._id,
   });
   await notification.save();
 
@@ -86,6 +87,7 @@ export const respondToFriendRequest = async (
       type: "friendRequest",
       content: "Your friend request was accepted",
       fromUser: userId,
+      requestId: friendRequest._id,
     });
     await notification.save();
   } else if (status === "rejected") {
@@ -94,6 +96,7 @@ export const respondToFriendRequest = async (
       type: "friendRequest",
       content: "Your friend request was rejected",
       fromUser: userId,
+      requestId: friendRequest._id,
     });
     await notification.save();
   }

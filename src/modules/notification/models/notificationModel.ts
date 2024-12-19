@@ -6,6 +6,7 @@ interface INotification extends Document {
   content: string;
   fromUser: Types.ObjectId;
   isRead: boolean;
+  requestId: Types.ObjectId;
   createdAt: Date;
 }
 
@@ -19,6 +20,7 @@ const notificationSchema = new Schema<INotification>({
   content: { type: String, required: true },
   fromUser: { type: Schema.Types.ObjectId, ref: "User", required: true },
   isRead: { type: Boolean, default: false },
+  requestId: { type: Schema.Types.ObjectId, required: true },
   createdAt: { type: Date, default: Date.now },
 });
 

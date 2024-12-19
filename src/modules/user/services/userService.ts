@@ -9,13 +9,20 @@ export const searchUsers = async (
 ) => {
   const skip = (page - 1) * limit;
 
+  const user = await User.findById(userId).select("friends");
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const friends = user.friends;
+
   const searchQuery = {
     $or: [
       { firstName: { $regex: searchTerm, $options: "i" } },
       { lastName: { $regex: searchTerm, $options: "i" } },
       { email: { $regex: searchTerm, $options: "i" } },
     ],
-    _id: { $ne: userId },
+    _id: { $ne: userId, $nin: friends },
   };
 
   const users = await User.find(searchQuery)
