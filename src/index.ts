@@ -6,6 +6,7 @@ import authRoutes from "./modules/auth/routes/authRoutes";
 import userRoutes from "./modules/user/routes/userRoutes";
 import friendRoutes from "./modules/friends/routes/friendRequestRoutes";
 import gameRequestRoutes from "./modules/gameRequest/routes/gameRequestRoutes";
+import notificationRoutes from "./modules/notification/routes/notificationRoutes";
 import cors from "cors";
 import { Server } from "socket.io";
 import { handleGameSockets } from "./modules/game/  controllers/gameSocketController";
@@ -30,6 +31,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/friends", friendRoutes);
 app.use("/api/gameRequest", gameRequestRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 handleGameSockets(io);
 
